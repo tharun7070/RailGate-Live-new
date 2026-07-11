@@ -140,8 +140,8 @@ class RailwayGate {
   int get hashCode => id.hashCode;
 }
 
-/// Route model
-class Route {
+/// Gate route model
+class GateRoute {
   final String id;
   final List<double> startLocation; // [lat, lng]
   final List<double> endLocation; // [lat, lng]
@@ -151,7 +151,7 @@ class Route {
   final List<RailwayGate> gatesOnRoute;
   final bool hasAlternateRoute;
 
-  const Route({
+  const GateRoute({
     required this.id,
     required this.startLocation,
     required this.endLocation,
@@ -162,7 +162,7 @@ class Route {
     this.hasAlternateRoute = false,
   });
 
-  factory Route.fromJson(Map<String, dynamic> json) {
+  factory GateRoute.fromJson(Map<String, dynamic> json) {
     final List<List<double>> polylinePoints = [];
     if (json['polylinePoints'] != null) {
       for (var point in json['polylinePoints']) {
@@ -180,7 +180,7 @@ class Route {
       }
     }
 
-    return Route(
+    return GateRoute(
       id: json['id'] ?? '',
       startLocation: List<double>.from(json['startLocation'] ?? []),
       endLocation: List<double>.from(json['endLocation'] ?? []),
@@ -205,7 +205,7 @@ class Route {
     };
   }
 
-  Route copyWith({
+  GateRoute copyWith({
     String? id,
     List<double>? startLocation,
     List<double>? endLocation,
@@ -215,7 +215,7 @@ class Route {
     List<RailwayGate>? gatesOnRoute,
     bool? hasAlternateRoute,
   }) {
-    return Route(
+    return GateRoute(
       id: id ?? this.id,
       startLocation: startLocation ?? this.startLocation,
       endLocation: endLocation ?? this.endLocation,

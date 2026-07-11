@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/app_colors.dart';
-import '../../core/constants/app_constants.dart';
-import '../../core/widgets/common_widgets.dart';
-import '../../data/models/models.dart';
+import '../../../core/constants/app_colors.dart';
+import '../../../core/constants/app_constants.dart';
+import '../../../core/widgets/common_widgets.dart';
+import '../../../data/models/models.dart';
 import '../providers/home_providers.dart';
 
 /// Main home screen with map and gate status overview

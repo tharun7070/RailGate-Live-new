@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_constants.dart';
 
 /// Dark theme configuration - Clean, professional, sky-blue accent
 class AppThemeDark {
@@ -41,7 +42,7 @@ class AppThemeDark {
           letterSpacing: -0.5,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.cardDark,
         elevation: 2,
         shadowColor: AppColors.shadowDark,
@@ -121,7 +122,7 @@ class AppThemeDark {
         foregroundColor: Colors.white,
         elevation: 4,
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: AppColors.backgroundDark,
         modalBackgroundColor: AppColors.backgroundDark,
         elevation: 8,

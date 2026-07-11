@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
+import '../constants/app_constants.dart';
+import '../../data/models/models.dart';
 
 /// Status indicator widget showing gate status with color coding
 class StatusIndicator extends StatelessWidget {
@@ -167,7 +169,7 @@ class GateInfoCard extends StatelessWidget {
 
 /// Route summary card
 class RouteSummaryCard extends StatelessWidget {
-  final Route route;
+  final GateRoute route;
   final bool isAlternate;
   final VoidCallback? onSelect;
 

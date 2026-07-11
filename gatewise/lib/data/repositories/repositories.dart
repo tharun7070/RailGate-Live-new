@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import '../models/models.dart';
 
@@ -12,12 +13,12 @@ abstract class GateRepository {
 
 /// Abstract repository for route operations
 abstract class RouteRepository {
-  Future<Route?> getRoute({
+  Future<GateRoute?> getRoute({
     required List<double> startLocation,
     required List<double> endLocation,
   });
   
-  Future<List<Route>> getAlternateRoutes({
+  Future<List<GateRoute>> getAlternateRoutes({
     required List<double> startLocation,
     required List<double> endLocation,
   });
@@ -127,7 +128,7 @@ class MockGateRepository implements GateRepository {
 /// Mock implementation of RouteRepository for development
 class MockRouteRepository implements RouteRepository {
   @override
-  Future<Route?> getRoute({
+  Future<GateRoute?> getRoute({
     required List<double> startLocation,
     required List<double> endLocation,
   }) async {
@@ -150,7 +151,7 @@ class MockRouteRepository implements RouteRepository {
       }
     }
     
-    return Route(
+    return GateRoute(
       id: 'route_${DateTime.now().millisecondsSinceEpoch}',
       startLocation: startLocation,
       endLocation: endLocation,
@@ -163,14 +164,14 @@ class MockRouteRepository implements RouteRepository {
   }
 
   @override
-  Future<List<Route>> getAlternateRoutes({
+  Future<List<GateRoute>> getAlternateRoutes({
     required List<double> startLocation,
     required List<double> endLocation,
   }) async {
     await Future.delayed(const Duration(milliseconds: 700));
     
     // Generate 1-2 alternate routes
-    final List<Route> alternates = [];
+    final List<GateRoute> alternates = [];
     final int numAlternates = 1 + (DateTime.now().millisecond % 2);
     
     for (int i = 0; i < numAlternates; i++) {
@@ -180,7 +181,7 @@ class MockRouteRepository implements RouteRepository {
         offset: (i + 1) * 0.02,
       );
       
-      alternates.add(Route(
+      alternates.add(GateRoute(
         id: 'alternate_${i}_${DateTime.now().millisecondsSinceEpoch}',
         startLocation: startLocation,
         endLocation: endLocation,

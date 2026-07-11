@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../data/models/models.dart';
-import '../../data/repositories/repositories.dart';
-import '../../core/constants/app_colors.dart';
+import '../../../data/models/models.dart';
+import '../../../data/repositories/repositories.dart';
+import '../../../core/constants/app_colors.dart';
 
 /// Provider for managing gate status state
 class GateProvider with ChangeNotifier {
@@ -106,16 +106,16 @@ class GateProvider with ChangeNotifier {
 class RouteProvider with ChangeNotifier {
   final RouteRepository _routeRepository;
   
-  Route? _currentRoute;
-  List<Route> _alternateRoutes = [];
+  GateRoute? _currentRoute;
+  List<GateRoute> _alternateRoutes = [];
   bool _isLoading = false;
   String? _error;
 
   RouteProvider({RouteRepository? routeRepository})
       : _routeRepository = routeRepository ?? MockRouteRepository();
 
-  Route? get currentRoute => _currentRoute;
-  List<Route> get alternateRoutes => _alternateRoutes;
+  GateRoute? get currentRoute => _currentRoute;
+  List<GateRoute> get alternateRoutes => _alternateRoutes;
   bool get isLoading => _isLoading;
   String? get error => _error;
   
@@ -156,7 +156,7 @@ class RouteProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void selectRoute(Route route) {
+  void selectRoute(GateRoute route) {
     _currentRoute = route;
     notifyListeners();
   }
