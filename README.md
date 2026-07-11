@@ -72,7 +72,9 @@ The app:
 ## 🏗️ System Architecture
 
 User App (Mobile)
+
 ↓
+
 Maps SDK (Route & Navigation)
 ↓
 GateWise Backend
