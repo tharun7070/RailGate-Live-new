@@ -76,9 +76,13 @@ User App (Mobile)
 ↓
 
 Maps SDK (Route & Navigation)
+
 ↓
+
 GateWise Backend
+
 ↓
+
 Gate Status Database
 (Crowd Updates + Predictions)
 
