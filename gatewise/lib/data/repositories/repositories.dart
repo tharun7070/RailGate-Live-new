@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import '../models/models.dart';
 
 /// Abstract repository for gate operations
@@ -82,8 +84,38 @@ class MockGateRepository implements GateRepository {
 
   @override
   Future<List<RailwayGate>> getAllGates() async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
-    return _sampleGates;
+    List<RailwayGate> updatedGates = [];
+    
+    for (var gate in _sampleGates) {
+      try {
+        // Extract numeric ID from gate_1, gate_2, etc. Default to 1 if missing.
+        final idStr = gate.id.replaceAll(RegExp(r'[^0-9]'), '');
+        final numericId = int.tryParse(idStr) ?? 1;
+        
+        final response = await http.post(
+          Uri.parse('http://127.0.0.1:8000/predict'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'gate_id': numericId}),
+        ).timeout(const Duration(seconds: 2));
+        
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+          final predictedStatus = data['predicted_status'];
+          
+          updatedGates.add(gate.copyWith(
+            status: GateStatusExtension.fromValue(predictedStatus),
+            description: '${gate.description} (ML Confidence: ${(data['confidence'] * 100).toStringAsFixed(1)}%)'
+          ));
+        } else {
+          updatedGates.add(gate);
+        }
+      } catch (e) {
+        // Fallback to default if API fails
+        updatedGates.add(gate);
+      }
+    }
+    
+    return updatedGates;
   }
 
   @override
