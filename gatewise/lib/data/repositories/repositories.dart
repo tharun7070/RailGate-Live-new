@@ -92,19 +92,35 @@ class MockGateRepository implements GateRepository {
         final idStr = gate.id.replaceAll(RegExp(r'[^0-9]'), '');
         final numericId = int.tryParse(idStr) ?? 1;
         
-        final response = await http.post(
+        // 1. Fetch ML Prediction
+        final mlResponse = await http.post(
           Uri.parse('http://127.0.0.1:8000/predict'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'gate_id': numericId}),
         ).timeout(const Duration(seconds: 2));
         
-        if (response.statusCode == 200) {
-          final data = jsonDecode(response.body);
+        // 2. Fetch Live IRCTC Simulation Data
+        // Map gate IDs to fake train numbers for demo purposes
+        final trainNumbers = ['12951', '12009', '22691', '12925', '12951'];
+        final trainNum = trainNumbers[(numericId - 1) % trainNumbers.length];
+        
+        final trainResponse = await http.get(
+          Uri.parse('http://127.0.0.1:8000/train_status/$trainNum'),
+        ).timeout(const Duration(seconds: 2));
+        
+        if (mlResponse.statusCode == 200) {
+          final data = jsonDecode(mlResponse.body);
           final predictedStatus = data['predicted_status'];
+          
+          String liveTrainInfo = "";
+          if (trainResponse.statusCode == 200) {
+            final trainData = jsonDecode(trainResponse.body);
+            liveTrainInfo = '\n\n🚆 LIVE TRAIN: ${trainData['train_name']} (${trainData['train_number']})\nStatus: ${trainData['status']}\nCurrent: ${trainData['current_station']} -> Next: ${trainData['next_station']} in ${trainData['eta_next_station']}';
+          }
           
           updatedGates.add(gate.copyWith(
             status: GateStatusExtension.fromValue(predictedStatus),
-            description: '${gate.description} (ML Confidence: ${(data['confidence'] * 100).toStringAsFixed(1)}%)'
+            description: '${gate.description}\n\n🤖 ML Confidence: ${(data['confidence'] * 100).toStringAsFixed(1)}%$liveTrainInfo'
           ));
         } else {
           updatedGates.add(gate);

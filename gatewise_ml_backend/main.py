@@ -1,12 +1,23 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
 import pandas as pd
 from datetime import datetime
 import os
 import math
+import random
 
 app = FastAPI(title="GateWise ML Backend", description="AI/ML features for GateWise app")
+
+# Fix CORS so Flutter Web can communicate with the API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # In production, restrict to your specific domains
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load model at startup
 MODEL_PATH = "models/gate_prediction_model.pkl"
@@ -127,4 +138,52 @@ def validate_crowdsourced_report(request: TrustScoreRequest):
         trust_score=round(trust_score, 2),
         is_valid=is_valid,
         reason=reason
+    )
+
+# --- HYPER REALISTIC TRAIN SIMULATOR ---
+class TrainStatusResponse(BaseModel):
+    train_number: str
+    train_name: str
+    status: str
+    delay_minutes: int
+    current_station: str
+    next_station: str
+    eta_next_station: str
+
+@app.get("/train_status/{train_number}", response_model=TrainStatusResponse)
+def get_live_train_status(train_number: str):
+    # Simulate realistic train data
+    trains = {
+        "12951": "Rajdhani Express",
+        "12009": "Shatabdi Express",
+        "22691": "Rajdhani Express",
+        "12925": "Paschim Express"
+    }
+    
+    train_name = trains.get(train_number, "Local Superfast")
+    
+    # Calculate a deterministic "live" state based on the current hour/minute 
+    # so it looks like it's actually moving when the user checks repeatedly.
+    now = datetime.now()
+    seed = int(train_number) + now.hour * 60 + (now.minute // 5)
+    random.seed(seed)
+    
+    stations = ["Mumbai Central", "Andheri", "Borivali", "Surat", "Vadodara", "Ahmedabad"]
+    current_idx = random.randint(0, len(stations) - 2)
+    current_station = stations[current_idx]
+    next_station = stations[current_idx + 1]
+    
+    delay = random.choice([0, 0, 5, 10, 25, 45])
+    status = "On Time" if delay == 0 else f"Delayed by {delay} mins"
+    
+    eta_minutes = random.randint(5, 45)
+    
+    return TrainStatusResponse(
+        train_number=train_number,
+        train_name=train_name,
+        status=status,
+        delay_minutes=delay,
+        current_station=current_station,
+        next_station=next_station,
+        eta_next_station=f"{eta_minutes} mins"
     )

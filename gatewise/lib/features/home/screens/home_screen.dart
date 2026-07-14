@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart' as latlong2;
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/widgets/common_widgets.dart';
@@ -78,44 +80,71 @@ class MapViewScreen extends StatelessWidget {
       builder: (context, gateProvider, locationProvider, _) {
         return Stack(
           children: [
-            // Map placeholder (in production, use GoogleMap widget)
-            Container(
-              color: isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.map,
-                      size: 80,
-                      color: isDark 
-                          ? AppColors.textTertiaryDark 
-                          : AppColors.textTertiaryLight,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Map View',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: isDark 
-                            ? AppColors.textSecondaryDark 
-                            : AppColors.textSecondaryLight,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Google Maps integration will appear here',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark 
-                            ? AppColors.textTertiaryDark 
-                            : AppColors.textTertiaryLight,
-                      ),
-                    ),
-                  ],
-                ),
+            // Interactive Map using flutter_map
+            FlutterMap(
+              options: MapOptions(
+                initialCenter: gateProvider.gates.isNotEmpty 
+                    ? latlong2.LatLng(gateProvider.gates.first.latitude, gateProvider.gates.first.longitude)
+                    : const latlong2.LatLng(19.0760, 72.8777), // Default to Mumbai
+                initialZoom: 13.0,
               ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.gatewise.app',
+                ),
+                MarkerLayer(
+                  markers: gateProvider.gates.map((gate) {
+                    Color markerColor;
+                    if (gate.status == GateStatus.open) {
+                      markerColor = AppColors.statusOpen;
+                    } else if (gate.status == GateStatus.closed) {
+                      markerColor = AppColors.statusClosed;
+                    } else {
+                      markerColor = AppColors.statusLikelyToClose;
+                    }
+                    
+                    return Marker(
+                      point: latlong2.LatLng(gate.latitude, gate.longitude),
+                      width: 50,
+                      height: 50,
+                      child: GestureDetector(
+                        onTap: () {
+                          gateProvider.selectGate(gate);
+                        },
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: markerColor,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: markerColor.withOpacity(0.5),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: const Icon(
+                                Icons.train,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_drop_down,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
             
             // Top search bar
